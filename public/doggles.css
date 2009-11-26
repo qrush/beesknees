@@ -74,10 +74,16 @@ form input[type='submit'] {
   font-size: 30px;
 }
 
-.guesses .right {
-  color: green;
+.guesses li {
+  color: white;
+  padding: 5px;
+  display: none;
 }
 
-.guesses .wrong {
-  color: red;
+.guesses .success {
+  background: green;
+}
+
+.guesses .error {
+  background: red;
 }

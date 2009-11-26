@@ -53,9 +53,11 @@ class Doggles
     $redis.list_range("doggles:game:#{id}", 0, -1).in_groups_of(4)
   end
 
-  def self.is_word?(word)
+  def self.word?(word)
     $redis.set_member?(KEY, word)
   end
+
+  def self.
 end
 
 get '/' do
@@ -72,7 +74,7 @@ post '/' do
   @roll = Doggles.find(params[:id])
   @guess = params[:guess]
 
-  if Doggles.is_word?(@guess)
+  if Doggles.word?(@guess)
     status 201
   else
     status 403

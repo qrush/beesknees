@@ -6,7 +6,7 @@
           %td= cell
 
   %form{:action => "#"}
-    %input{:type => 'text', :id => 'guess'}
+    %input{:type => 'text', :id => 'guess', :maxlength => 10}
     %input{:type => 'hidden', :id => 'game', :value => params[:id]}
     %input{:type => 'submit', :value => 'Guess!'}
     %ul.guesses
