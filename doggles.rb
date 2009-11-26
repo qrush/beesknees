@@ -26,6 +26,64 @@ DICE = [
   %W[O A W T T O]
 ]
 
+ADJACENTS = {
+  0  => [1, 4, 5],
+  1  => [0, 2, 4, 5, 6],
+  2  => [1, 3, 5, 6, 7],
+  3  => [2, 6, 7],
+  4  => [0, 1, 5, 8, 9],
+  5  => [0, 1, 2, 4, 6, 8, 9, 10],
+  6  => [1, 2, 3, 5, 7, 9, 10, 11],
+  7  => [2, 3, 6, 10, 11],
+  8  => [4, 5, 9, 12, 13],
+  9  => [4, 5, 6, 8, 10, 12, 13, 14],
+  10 => [5, 6, 7, 9, 11, 13, 14, 15],
+  11 => [6, 7, 10, 14, 15],
+  12 => [8, 9, 13],
+  13 => [8, 9, 10, 12, 14],
+  14 => [9, 10, 11, 13, 15],
+  15 => [10, 11, 14]
+}
+
+def find_indices(letters, this_letter)
+  found = []
+  letters.each_with_index do |letter, index|
+    found << index if letter == this_letter
+  end
+  found
+end
+
+class Node
+  attr_accessor :index
+  attr_accessor :letter
+  attr_accessor :children
+
+  def initialize(index, letter)
+    @index = index
+    @letter = letter
+    @children = []
+  end
+
+  def find(roll, check_word)
+    adj = ADJACENTS[@index].map { |n| roll[n] }
+    next_indices = find_indices(adj, check_word.first)
+    next_nodes = next_indices.map { |s| ADJACENTS[@index][s] }
+    next_nodes.each do |node|
+      node = Node.new(node, check_word.first)
+      self.children << node
+      node.find(roll, check_word[1..-1]) if check_word.size > 1
+    end
+  end
+
+  def size
+    if children.size == 0
+      return 1
+    else
+      return 1 + children.map(&:size).max
+    end
+  end
+end
+
 class Doggles
   KEY = 'doggles:dict'
 
@@ -37,7 +95,7 @@ class Doggles
     $redis.delete KEY
     all_words = File.readlines("/usr/share/dict/words")
     words = all_words.select { |word| word =~ /^[a-z]{3,8}$/ }
-    words.each { |word| $redis.set_add KEY, word.chomp }
+    words.each { |word| $redis.set_add KEY, word.chomp.upcase }
   end
 
   def self.roll
@@ -57,66 +115,17 @@ class Doggles
     $redis.set_member?(KEY, word)
   end
 
-  ADJACENTS = { 
-    0  => [1, 4, 5],
-    1  => [0, 2, 4, 5, 6],
-    2  => [1, 3, 5, 6, 7],
-    3  => [2, 6, 7],
-    4  => [0, 1, 5, 8, 9],
-    5  => [0, 1, 2, 4, 6, 8, 9, 10],
-    6  => [1, 2, 3, 5, 7, 9, 10, 11],
-    7  => [2, 3, 6, 10, 11],
-    8  => [4, 5, 9, 12, 13],
-    9  => [4, 5, 6, 8, 10, 12, 13, 14],
-    10 => [5, 6, 7, 9, 11, 13, 14, 15],
-    11 => [6, 7, 10, 14, 15],
-    12 => [8, 9, 13],
-    13 => [8, 9, 10, 12, 14],
-    14 => [9, 10, 11, 13, 15],
-    15 => [10, 11, 14]
-  }
-
   def self.in?(id, word)
     roll = find(id)
-    grid = roll.in_groups_of(4)
 
-    starting = find_indices(roll, word.first)
-        #p "FOUND #{letter}"
-        #pp index
-        #pp adj
-        #pp adj.map { |n| roll[n] }
+    find_indices(roll, word.first).each do |start|
+      parent = Node.new(start, word.first)
 
-    if starting.empty?
-      false
-    else
-      starting.each do |start|
-        check_word = word.chars.to_a[1..-1]
-        return true if next_to?(roll, start, check_word)
-      end
-      false
+      rest = word.chars.to_a[1..-1]
+      parent.find(roll, rest)
+      return true if parent.size == word.size
     end
-  end
-
-  def self.find_indices(letters, this_letter)
-    found = []
-    letters.each_with_index do |letter, index|
-      found << index if letter == this_letter
-    end
-    found
-  end
-
-  def self.next_to?(roll, start, check_word)
-    return true if check_word.empty?
-
-    adj = ADJACENTS[start].map { |n| roll[n] }
-    if adj.include?(check_word.first)
-      next_indices = find_indices(adj, check_word.first)
-      next_starts = next_indices.map { |s| ADJACENTS[start][s] }
-
-      return next_to?(roll, next_starts.first, check_word[1..-1])
-    else
-      return false
-    end
+    false
   end
 
   def self.valid?(id, word)
