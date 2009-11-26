@@ -3,6 +3,7 @@ require 'redis'
 require 'sinatra'
 require 'activesupport'
 require 'haml'
+require 'pp'
 
 $redis = Redis.new
 
@@ -62,4 +63,10 @@ end
 get '/:id' do
   @roll = Doggles.find(params[:id])
   haml :index
+end
+
+post '/' do
+  pp request.inspect
+  pp params
+  "GOT IT!"
 end

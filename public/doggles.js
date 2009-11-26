@@ -1,5 +1,16 @@
 $(document).ready(function() {
   $("form").submit(function() {
-    console.log("LOLOLOL!");
+    $.ajax({
+      type: 'POST',
+      url:  '/',
+      data: {
+        game:  $('#game').val(),
+        guess: $('#guess').val()
+      },
+      complete: function(res, status) {
+        console.log(res);
+        console.log(status);
+      }
+    });
   });
 });
