@@ -123,6 +123,14 @@ class Doggles
     $redis.list_range("doggles:game:#{id}", 0, -1)
   end
 
+  def self.score(id)
+    $redis["doggles:score:#{id}"] || 0
+  end
+
+  def self.score!(id, score)
+    $redis["doggles:score:#{id}"] = score
+  end
+
   def self.word?(word)
     $redis.set_member?(KEY, word)
   end
@@ -162,15 +170,18 @@ end
 
 get '/:id' do
   @roll = Doggles.find(params[:id]).in_groups_of(4)
+  @score = Doggles.score(params[:id])
   haml :index
 end
 
 post '/' do
   guess = params[:guess]
-  score = 0
+  id = params[:id]
+  score = Doggles.score(id).to_i
 
-  if Doggles.valid?(params[:id], guess.upcase)
-    score = SCORES[guess.size]
+  if Doggles.valid?(id, guess.upcase)
+    score += SCORES[guess.size]
+    Doggles.score!(id, score)
   end
 
   content_type "application/json"

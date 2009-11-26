@@ -14,7 +14,7 @@ $(document).ready(function() {
           "<li class='" + css + "'>" + res.guess + "</li>"
         );
         $('li:first-child').slideDown(200);
-        $("#score").text( Number($("#score").text()) + res.score );
+        $("#score").text(res.score);
         $("#guess").val('').focus();
       },
       'json'
