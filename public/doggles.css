@@ -21,9 +21,8 @@ h1:first-child {
 
 table {
   border: 20px solid #666;
-  margin: 0 auto;
   padding: 0;
-  margin-top: 20px;
+  float: left;
 }
 
 table tbody {
@@ -46,4 +45,39 @@ table td {
   width: 70px;
   height: 70px;
   border: 3px inset;
+}
+
+form {
+  float: left;
+  margin-left: 2em;
+}
+
+form #guess {
+  font-size: 40px;
+  border: 1px solid #666;
+  width: 350px;
+}
+
+form input[type='submit'] {
+  display: none;
+}
+
+.game {
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 20px;
+}
+
+.guesses {
+  padding: 0;
+  list-style: none;
+  font-size: 30px;
+}
+
+.guesses .right {
+  color: green;
+}
+
+.guesses .wrong {
+  color: red;
 }

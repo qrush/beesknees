@@ -1,10 +1,12 @@
-%table
-  -@roll.each do |row|
-    %tr
-      -row.each do |cell|
-        %td= cell
+.game
+  %table
+    -@roll.each do |row|
+      %tr
+        -row.each do |cell|
+          %td= cell
 
-%form{:action => "#"}
-  %input{:type => 'text', :id => 'guess'}
-  %input{:type => 'hidden', :id => 'game', :value => params[:id]}
-  %input{:type => 'submit', :value => 'Guess!'}
+  %form{:action => "#"}
+    %input{:type => 'text', :id => 'guess'}
+    %input{:type => 'hidden', :id => 'game', :value => params[:id]}
+    %input{:type => 'submit', :value => 'Guess!'}
+    %ul.guesses

@@ -74,9 +74,9 @@ post '/' do
 
   if Doggles.is_word?(@guess)
     status 201
-    "That works!"
   else
     status 403
-    "No way man!"
   end
+
+  @guess
 end
