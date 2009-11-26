@@ -26,6 +26,8 @@ DICE = [
   %W[O A W T T O]
 ]
 
+LETTERS = DICE.flatten.uniq.map(&:upcase)
+
 ADJACENTS = {
   0  => [1, 4, 5],
   1  => [0, 2, 4, 5, 6],
@@ -47,7 +49,7 @@ ADJACENTS = {
 
 def find_indices(letters, this_letter)
   found = []
-  letters.each_with_index do |letter, index|
+  letters.map(&:upcase).each_with_index do |letter, index|
     found << index if letter == this_letter
   end
   found
@@ -118,12 +120,20 @@ class Doggles
   def self.in?(id, word)
     roll = find(id)
 
-    find_indices(roll, word.first).each do |start|
-      parent = Node.new(start, word.first)
+    chars = word.chars.to_a
+    if word =~ /QU/
+      q_index = chars.index("Q")
 
-      rest = word.chars.to_a[1..-1]
-      parent.find(roll, rest)
-      return true if parent.size == word.size
+      chars = chars[0...q_index] +
+              %w[QU] +
+              chars[q_index + 2..-1]
+    end
+
+    find_indices(roll, chars.first).each do |start|
+      parent = Node.new(start, chars.first)
+
+      parent.find(roll, chars[1..-1])
+      return true if parent.size == chars.size
     end
     false
   end
