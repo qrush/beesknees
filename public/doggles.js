@@ -2,18 +2,22 @@ $(document).ready(function() {
   $("#guess").focus();
 
   $("form").submit(function() {
-    $.ajax({
-      type: 'POST',
-      url:  '/',
-      data: {
+    $.post(
+      '/',
+      {
         id:    $('#game').val(),
         guess: $('#guess').val()
       },
-      complete: function(res, status) {
-        $('.guesses').prepend("<li class='" + status + "'>" + res.responseText + "</li>")
+      function(res, status) {
+        css = (res.score > 0) ? "success" : "error"
+        $('.guesses').prepend(
+          "<li class='" + css + "'>" + res.guess + "</li>"
+        );
         $('li:first-child').slideDown(200);
-        $("#guess").val("").focus();
-      }
-    });
+        $("#score").text( Number($("#score").text()) + res.score );
+        $("#guess").val('').focus();
+      },
+      'json'
+    );
   });
 });

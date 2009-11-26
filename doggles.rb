@@ -4,6 +4,7 @@ require 'sinatra'
 require 'activesupport'
 require 'haml'
 require 'pp'
+require 'json'
 
 $redis = Redis.new
 
@@ -45,6 +46,15 @@ ADJACENTS = {
   13 => [8, 9, 10, 12, 14],
   14 => [9, 10, 11, 13, 15],
   15 => [10, 11, 14]
+}
+
+SCORES = {
+  3 => 1,
+  4 => 1,
+  5 => 2,
+  6 => 3,
+  7 => 5,
+  8 => 11
 }
 
 def find_indices(letters, this_letter)
@@ -154,13 +164,13 @@ get '/:id' do
 end
 
 post '/' do
-  @guess = params[:guess]
+  guess = params[:guess]
+  score = 0
 
-  if Doggles.valid?(params[:id], @guess.upcase)
-    status 201
-  else
-    status 403
+  if Doggles.valid?(params[:id], guess.upcase)
+    score = SCORES[guess.size]
   end
 
-  @guess
+  content_type "application/json"
+  {:guess => guess, :score => score }.to_json
 end
