@@ -50,14 +50,78 @@ class Doggles
   end
 
   def self.find(id)
-    $redis.list_range("doggles:game:#{id}", 0, -1).in_groups_of(4)
+    $redis.list_range("doggles:game:#{id}", 0, -1)
   end
 
   def self.word?(word)
     $redis.set_member?(KEY, word)
   end
 
-  def self.
+  ADJACENTS = { 
+    0  => [1, 4, 5],
+    1  => [0, 2, 4, 5, 6],
+    2  => [1, 3, 5, 6, 7],
+    3  => [2, 6, 7],
+    4  => [0, 1, 5, 8, 9],
+    5  => [0, 1, 2, 4, 6, 8, 9, 10],
+    6  => [1, 2, 3, 5, 7, 9, 10, 11],
+    7  => [2, 3, 6, 10, 11],
+    8  => [4, 5, 9, 12, 13],
+    9  => [4, 5, 6, 8, 10, 12, 13, 14],
+    10 => [5, 6, 7, 9, 11, 13, 14, 15],
+    11 => [6, 7, 10, 14, 15],
+    12 => [8, 9, 13],
+    13 => [8, 9, 10, 12, 14],
+    14 => [9, 10, 11, 13, 15],
+    15 => [10, 11, 14]
+  }
+
+  def self.in?(id, word)
+    roll = find(id)
+    grid = roll.in_groups_of(4)
+
+    starting = find_indices(roll, word.first)
+        #p "FOUND #{letter}"
+        #pp index
+        #pp adj
+        #pp adj.map { |n| roll[n] }
+
+    if starting.empty?
+      false
+    else
+      starting.each do |start|
+        check_word = word.chars.to_a[1..-1]
+        return true if next_to?(roll, start, check_word)
+      end
+      false
+    end
+  end
+
+  def self.find_indices(letters, this_letter)
+    found = []
+    letters.each_with_index do |letter, index|
+      found << index if letter == this_letter
+    end
+    found
+  end
+
+  def self.next_to?(roll, start, check_word)
+    return true if check_word.empty?
+
+    adj = ADJACENTS[start].map { |n| roll[n] }
+    if adj.include?(check_word.first)
+      next_indices = find_indices(adj, check_word.first)
+      next_starts = next_indices.map { |s| ADJACENTS[start][s] }
+
+      return next_to?(roll, next_starts.first, check_word[1..-1])
+    else
+      return false
+    end
+  end
+
+  def self.valid?(id, word)
+    word?(word) && in?(id, word)
+  end
 end
 
 get '/' do
@@ -66,15 +130,14 @@ get '/' do
 end
 
 get '/:id' do
-  @roll = Doggles.find(params[:id])
+  @roll = Doggles.find(params[:id]).in_groups_of(4)
   haml :index
 end
 
 post '/' do
-  @roll = Doggles.find(params[:id])
   @guess = params[:guess]
 
-  if Doggles.word?(@guess)
+  if Doggles.valid?(params[:id], @guess.upcase)
     status 201
   else
     status 403
