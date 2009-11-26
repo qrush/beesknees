@@ -40,12 +40,26 @@ class Doggles
   end
 
   def self.roll
-    DICE.map(&:rand).shuffle.in_groups_of(4)
+    id = $redis.incr 'doggles:game'
+    key = "doggles:game:#{id}"
+    DICE.map(&:rand).shuffle.each do |roll|
+      $redis.push_tail key, roll
+    end
+    id
+  end
+
+  def self.find(id)
+    $redis.list_range("doggles:game:#{id}", 0, -1).in_groups_of(4)
   end
 end
 
   #$redis.set_members Doggles::KEY
 get '/' do
-  @roll = Doggles.roll
+  id = Doggles.roll
+  redirect "/#{id}"
+end
+
+get '/:id' do
+  @roll = Doggles.find(params[:id])
   haml :index
 end

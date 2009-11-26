@@ -3,3 +3,7 @@
     %tr
       -row.each do |cell|
         %td= cell
+
+%form{:action => "#"}
+  %input{:type => 'text'}
+  %input{:type => 'submit', :value => 'Guess!'}
