@@ -37,7 +37,7 @@ class Doggles
     $redis.delete KEY
     all_words = File.readlines("/usr/share/dict/words")
     words = all_words.select { |word| word =~ /^[a-z]{3,8}$/ }
-    words.each { |word| $redis.set_add KEY, word }
+    words.each { |word| $redis.set_add KEY, word.chomp }
   end
 
   def self.roll
@@ -52,9 +52,12 @@ class Doggles
   def self.find(id)
     $redis.list_range("doggles:game:#{id}", 0, -1).in_groups_of(4)
   end
+
+  def self.is_word?(word)
+    $redis.set_member?(KEY, word)
+  end
 end
 
-  #$redis.set_members Doggles::KEY
 get '/' do
   id = Doggles.roll
   redirect "/#{id}"
@@ -66,7 +69,14 @@ get '/:id' do
 end
 
 post '/' do
-  pp request.inspect
-  pp params
-  "GOT IT!"
+  @roll = Doggles.find(params[:id])
+  @guess = params[:guess]
+
+  if Doggles.is_word?(@guess)
+    status 201
+    "That works!"
+  else
+    status 403
+    "No way man!"
+  end
 end
