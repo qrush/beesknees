@@ -23,6 +23,15 @@ h1 {
   width: 60%;
 }
 
+#top * {
+  display: inline-block;
+}
+
+#top a {
+  width: 84%;
+  text-align: right;
+}
+
 h1:first-child {
   margin-top:0;
 }
