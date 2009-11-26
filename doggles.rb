@@ -7,22 +7,22 @@ require 'haml'
 $redis = Redis.new
 
 DICE = [
-  %w[t i e s o s],
-  %w[p c s o a h],
-  %w[i t t d y s],
-  %w[e e i n s u],
-  %w[e r t v h w],
-  %w[f p a f k s],
-  %w[n m u h qu i],
-  %w[u t m o i c],
-  %w[e a e n a g],
-  %w[n h g w e e],
-  %w[n l z h r n],
-  %w[e t y l r t],
-  %w[e v y d r l],
-  %w[x i l r e d],
-  %w[b o o j b a],
-  %w[o a w t t o]
+  %W[T I E S O S],
+  %W[P C S O A H],
+  %W[I T T D Y S],
+  %W[E E I N S U],
+  %W[E R T V H W],
+  %W[F P A F K S],
+  %W[N M U H Qu I],
+  %W[U T M O I C],
+  %W[E A E N A G],
+  %W[N H G W E E],
+  %W[N L Z H R N],
+  %W[E T Y L R T],
+  %W[E V Y D R L],
+  %W[X I L R E D],
+  %W[B O O J B A],
+  %W[O A W T T O]
 ]
 
 class Doggles
@@ -49,19 +49,3 @@ get '/' do
   @roll = Doggles.roll
   haml :index
 end
-
-__END__
-
-@@index
-%table
-  -@roll.each do |row|
-    %tr
-      -row.each do |cell|
-        %td= cell
-
-@@layout
-%html
-%title Doggles.
-%body
-  %h1 Doggles.
-  =yield
