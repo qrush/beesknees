@@ -3,7 +3,6 @@ require 'redis'
 require 'sinatra'
 require 'activesupport'
 require 'haml'
-require 'pp'
 require 'json'
 
 $redis = Redis.new
@@ -26,8 +25,6 @@ DICE = [
   %W[B O O J B A],
   %W[O A W T T O]
 ]
-
-LETTERS = DICE.flatten.uniq.map(&:upcase)
 
 ADJACENTS = {
   0  => [1, 4, 5],
@@ -81,9 +78,12 @@ class Node
     next_indices = find_indices(adj, check_word.first)
     next_nodes = next_indices.map { |s| ADJACENTS[@index][s] }
     next_nodes.each do |node|
+      next_roll = roll.dup
+      next_roll[node] = '?'
+
       node = Node.new(node, check_word.first)
       self.children << node
-      node.find(roll, check_word[1..-1]) if check_word.size > 1
+      node.find(next_roll, check_word[1..-1]) if check_word.size > 1
     end
   end
 
@@ -140,9 +140,11 @@ class Doggles
     end
 
     find_indices(roll, chars.first).each do |start|
+      next_roll = roll.dup
+      next_roll[start] = "?"
       parent = Node.new(start, chars.first)
 
-      parent.find(roll, chars[1..-1])
+      parent.find(next_roll, chars[1..-1])
       return true if parent.size == chars.size
     end
     false
