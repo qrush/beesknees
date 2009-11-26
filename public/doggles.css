@@ -67,6 +67,7 @@ table td {
 form {
   float: left;
   margin-left: 2em;
+  width: 350px;
 }
 
 form #guess {
@@ -88,7 +89,13 @@ form input[type='submit'] {
 .guesses {
   padding: 0;
   list-style: none;
-  font-size: 30px;
+  font-size: 25px;
+  width: 160px;
+  display: inline-block;
+}
+
+.success-list {
+  margin-right: 25px;
 }
 
 .guesses li {

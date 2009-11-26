@@ -9,11 +9,11 @@ $(document).ready(function() {
         guess: $('#guess').val()
       },
       function(res, status) {
-        css = (res.score > 0) ? "success" : "error"
-        $('.guesses').prepend(
+        css = res.correct ? "success" : "error"
+        $("." + css + "-list").prepend(
           "<li class='" + css + "'>" + res.guess + "</li>"
         );
-        $('li:first-child').slideDown(200);
+        $('li:first-child').fadeIn();
         $("#score").text(res.score);
         $("#guess").val('').focus();
       },

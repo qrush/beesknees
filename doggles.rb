@@ -159,7 +159,22 @@ class Doggles
   end
 
   def self.valid?(id, word)
-    word?(word) && in?(id, word)
+    valid = word?(word) && in?(id, word)
+
+    if valid
+      $redis.set_add "doggles:success:#{id}", word
+    else
+      $redis.set_add "doggles:error:#{id}", word
+    end
+
+    valid
+  end
+
+  def self.log(id)
+    {
+      :success => $redis.set_members("doggles:success:#{id}"),
+      :error   => $redis.set_members("doggles:error:#{id}")
+    }
   end
 end
 
@@ -169,8 +184,12 @@ get '/' do
 end
 
 get '/:id' do
-  @roll = Doggles.find(params[:id]).in_groups_of(4)
-  @score = Doggles.score(params[:id])
+  id = params[:id]
+
+  @roll = Doggles.find(id).in_groups_of(4)
+  @score = Doggles.score(id)
+  @log = Doggles.log(id)
+
   haml :index
 end
 
@@ -179,11 +198,15 @@ post '/' do
   id = params[:id]
   score = Doggles.score(id).to_i
 
-  if Doggles.valid?(id, guess.upcase)
+  if (correct = Doggles.valid?(id, guess.upcase))
     score += SCORES[guess.size]
     Doggles.score!(id, score)
   end
 
   content_type "application/json"
-  {:guess => guess, :score => score }.to_json
+  {
+    :guess   => guess,
+    :score   => score,
+    :correct => correct
+  }.to_json
 end

@@ -13,4 +13,9 @@
     %input{:type => 'text', :id => 'guess', :maxlength => 10}
     %input{:type => 'hidden', :id => 'game', :value => params[:id]}
     %input{:type => 'submit', :value => 'Guess!'}
-    %ul.guesses
+    %ul.guesses.success-list
+      -@log[:success].each do |word|
+        %li.success{:style => 'display:block'}= word
+    %ul.guesses.error-list
+      -@log[:error].each do |word|
+        %li.error{:style => 'display:block'}= word
