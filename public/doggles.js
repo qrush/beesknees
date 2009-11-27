@@ -1,12 +1,29 @@
-$(document).ready(function() {
-  $("#guess").focus();
+jQuery.noConflict();
 
-  $("form").submit(function() {
-    $.post(
+jQuery(document).ready(function() {
+
+  jQuery("#time").data("now", 3 * 60 * 1000)
+
+  timer = new PeriodicalExecuter(function() {
+    jQuery("#time").data("now", jQuery("#time").data("now") - 500);
+
+    time = jQuery("#time").data("now");
+
+    raw_minutes = time / 60 / 1000;
+    minutes = raw_minutes.floor();
+    seconds = ((raw_minutes - minutes) * 60).floor();
+
+    jQuery("#time").text(minutes + ":" + seconds);
+  }, 0.5);
+
+  jQuery("#guess").focus();
+
+  jQuery("form").submit(function() {
+    jQuery.post(
       '/',
       {
-        id:    $('#game').val(),
-        guess: $('#guess').val()
+        id:    jQuery('#game').val(),
+        guess: jQuery('#guess').val()
       },
       function(res, status) {
         if( res.result == "success" ) {
@@ -20,12 +37,12 @@ $(document).ready(function() {
           item = "error"
         }
 
-        $("." + list + "-list").prepend(
+        jQuery("." + list + "-list").prepend(
           "<li class='" + item + "'>" + res.guess + "</li>"
         );
-        $('.' + list + '-list li:first-child').slideDown();
-        $("#score").text(res.score);
-        $("#guess").val('').focus();
+        jQuery('.' + list + '-list li:first-child').slideDown();
+        jQuery("#score").text(res.score);
+        jQuery("#guess").val('').focus();
       },
       'json'
     );
