@@ -176,6 +176,11 @@ class Doggles
       :error   => $redis.set_members("doggles:error:#{id}")
     }
   end
+
+  def self.dupe?(id, word)
+    $redis.set_member?("doggles:success:#{id}", word) ||
+    $redis.set_member?("doggles:error:#{id}", word)
+  end
 end
 
 get '/' do
@@ -194,19 +199,24 @@ get '/:id' do
 end
 
 post '/' do
-  guess = params[:guess]
+  guess = params[:guess].upcase
   id = params[:id]
   score = Doggles.score(id).to_i
 
-  if (correct = Doggles.valid?(id, guess.upcase))
+  result = if Doggles.dupe?(id, guess)
+    'dupe'
+  elsif Doggles.valid?(id, guess)
     score += SCORES[guess.size]
     Doggles.score!(id, score)
+    'success'
+  else
+    'error'
   end
 
   content_type "application/json"
   {
-    :guess   => guess,
-    :score   => score,
-    :correct => correct
+    :guess  => guess,
+    :score  => score,
+    :result => result
   }.to_json
 end

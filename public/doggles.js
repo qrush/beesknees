@@ -9,11 +9,21 @@ $(document).ready(function() {
         guess: $('#guess').val()
       },
       function(res, status) {
-        css = res.correct ? "success" : "error"
-        $("." + css + "-list").prepend(
-          "<li class='" + css + "'>" + res.guess + "</li>"
+        if( res.result == "success" ) {
+          list = "success"
+          item = "success"
+        } else if( res.result == "dupe" ) {
+          list = "error"
+          item = "dupe"
+        } else {
+          list = "error"
+          item = "error"
+        }
+
+        $("." + list + "-list").prepend(
+          "<li class='" + item + "'>" + res.guess + "</li>"
         );
-        $('li:first-child').fadeIn();
+        $('.' + list + '-list li:first-child').slideDown();
         $("#score").text(res.score);
         $("#guess").val('').focus();
       },
