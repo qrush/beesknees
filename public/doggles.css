@@ -92,6 +92,7 @@ form input[type='submit'] {
   font-size: 25px;
   width: 160px;
   display: inline-block;
+  vertical-align: top;
 }
 
 .success-list {
