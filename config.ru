@@ -1,3 +1,3 @@
-require 'doggles'
+require 'beesknees'
 
 run Sinatra::Application

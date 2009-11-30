@@ -96,7 +96,7 @@ class Node
   end
 end
 
-class Doggles
+class BeesKnees
   KEY = 'doggles:dict'
 
   def log(message)
@@ -184,16 +184,16 @@ class Doggles
 end
 
 get '/' do
-  id = Doggles.roll
+  id = BeesKnees.roll
   redirect "/#{id}"
 end
 
 get '/:id' do
   id = params[:id]
 
-  @roll = Doggles.find(id).in_groups_of(4)
-  @score = Doggles.score(id)
-  @log = Doggles.log(id)
+  @roll = BeesKnees.find(id).in_groups_of(4)
+  @score = BeesKnees.score(id)
+  @log = BeesKnees.log(id)
 
   haml :index
 end
@@ -201,13 +201,13 @@ end
 post '/' do
   guess = params[:guess].upcase
   id = params[:id]
-  score = Doggles.score(id).to_i
+  score = BeesKnees.score(id).to_i
 
-  result = if Doggles.dupe?(id, guess)
+  result = if BeesKnees.dupe?(id, guess)
     'dupe'
-  elsif Doggles.valid?(id, guess)
+  elsif BeesKnees.valid?(id, guess)
     score += SCORES[guess.size]
-    Doggles.score!(id, score)
+    BeesKnees.score!(id, score)
     'success'
   else
     'error'
