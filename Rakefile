@@ -1,7 +1,6 @@
-require 'doggles'
+require 'beesknees'
 
 desc 'Load the dictionary words'
 task :load do
-  require 'doggles'
-  Doggles.load
+  BeesKnees.load
 end
