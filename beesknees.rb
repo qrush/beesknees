@@ -97,7 +97,7 @@ class Node
 end
 
 class BeesKnees
-  KEY = 'doggles:dict'
+  KEY = 'beesknees:dict'
 
   def log(message)
     puts "[#{Time.now}] #{message}"
@@ -111,8 +111,8 @@ class BeesKnees
   end
 
   def self.roll
-    id = $redis.incr 'doggles:game'
-    key = "doggles:game:#{id}"
+    id = $redis.incr 'beesknees:game'
+    key = "beesknees:game:#{id}"
     DICE.map(&:rand).shuffle.each do |roll|
       $redis.push_tail key, roll
     end
@@ -120,15 +120,15 @@ class BeesKnees
   end
 
   def self.find(id)
-    $redis.list_range("doggles:game:#{id}", 0, -1)
+    $redis.list_range("beesknees:game:#{id}", 0, -1)
   end
 
   def self.score(id)
-    $redis["doggles:score:#{id}"] || 0
+    $redis["beesknees:score:#{id}"] || 0
   end
 
   def self.score!(id, score)
-    $redis["doggles:score:#{id}"] = score
+    $redis["beesknees:score:#{id}"] = score
   end
 
   def self.word?(word)
@@ -162,9 +162,9 @@ class BeesKnees
     valid = word?(word) && in?(id, word)
 
     if valid
-      $redis.set_add "doggles:success:#{id}", word
+      $redis.set_add "beesknees:success:#{id}", word
     else
-      $redis.set_add "doggles:error:#{id}", word
+      $redis.set_add "beesknees:error:#{id}", word
     end
 
     valid
@@ -172,14 +172,14 @@ class BeesKnees
 
   def self.log(id)
     {
-      :success => $redis.set_members("doggles:success:#{id}"),
-      :error   => $redis.set_members("doggles:error:#{id}")
+      :success => $redis.set_members("beesknees:success:#{id}"),
+      :error   => $redis.set_members("beesknees:error:#{id}")
     }
   end
 
   def self.dupe?(id, word)
-    $redis.set_member?("doggles:success:#{id}", word) ||
-    $redis.set_member?("doggles:error:#{id}", word)
+    $redis.set_member?("beesknees:success:#{id}", word) ||
+    $redis.set_member?("beesknees:error:#{id}", word)
   end
 end
 
